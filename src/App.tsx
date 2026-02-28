@@ -6,12 +6,12 @@ import { uid } from 'uid';
 import type { Item, DimensionField, PackResult } from './types';
 import { FONT_MONO } from './constants';
 import { pack } from './logic';
-import { BackgroundEffects, Header, Footer, ConfigPanel, ResultsPanel } from './components';
+import { BackgroundEffects, Header, Footer, ConfigPanel, ResultsPanel, SolvingOverlay } from './components';
 
 /** Delay (ms) before solving starts — gives the UI time to show the loading state. */
 const SOLVE_DEBOUNCE_MS = 400;
 
-/** Default items pre-loaded into the app for demo purposes. */
+/** Default items preloaded into the app for demo purposes. */
 const DEFAULT_ITEMS: Item[] = [
     { id: uid(), h: 2, w: 3 },
     { id: uid(), h: 1, w: 3 },
@@ -69,6 +69,7 @@ export default function App() {
             }}
         >
             <BackgroundEffects />
+            <SolvingOverlay solving={solving} />
 
             <Header />
 

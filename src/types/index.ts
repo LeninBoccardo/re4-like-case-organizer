@@ -40,6 +40,8 @@ export interface PackResult {
     readonly coveredSquares: number;
     readonly coveragePercent: number;
     readonly timedOut: boolean;
+    /** Wall-clock time (ms) the solver took to produce this result. */
+    readonly solveTimeMs: number;
 }
 
 /** Internal item used by the solver — carries precomputed data for performance. */

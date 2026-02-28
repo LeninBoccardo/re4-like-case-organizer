@@ -185,14 +185,16 @@ export function ResultsPanel({result, items, fatherH, fatherW, animKey}: Results
                                   accent="#ffd60a"/>
                         <StatCard label="Squares" value={result.coveredSquares} unit={`/${result.totalSquares}`}
                                   accent="#4cc9f0"/>
+                        <StatCard label="Time" value={result.solveTimeMs} unit="ms" accent="#7b2fff"
+                                  decimals={0}/>
                     </div>
 
                     {result.timedOut && <TimedOutBanner />}
 
                     {/* Grid visualization */}
-                    <Panel className="flex-1 flex flex-col min-h-0 overflow-hidden">
+                    <Panel className="flex-1 flex flex-col min-h-0 overflow-hidden" blur={false}>
                         <SectionHeader label={`RESULT GRID — ${fatherH}H × ${fatherW}W`} accent="#4cc9f0"/>
-                        <div className="flex-1 flex items-center justify-center min-h-0 overflow-hidden">
+                        <div className="flex-1 flex items-center justify-center min-h-0 overflow-auto">
                             <GridViz result={result} fatherH={fatherH} fatherW={fatherW} animKey={animKey}/>
                         </div>
                     </Panel>

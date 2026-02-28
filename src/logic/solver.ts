@@ -215,6 +215,7 @@ function greedyPrefill(grid: Grid, items: SolverItem[], used: boolean[]): Placed
  * - Grid fully filled by greedy → skips backtracking entirely.
  */
 export function pack(fatherH: number, fatherW: number, items: Item[]): PackResult {
+    const startTime = performance.now();
     const totalCells = fatherH * fatherW;
 
     // ── Fast path: no items ───────────────────────────────────────────────
@@ -226,6 +227,7 @@ export function pack(fatherH: number, fatherW: number, items: Item[]): PackResul
             coveredSquares: 0,
             coveragePercent: 0,
             timedOut: false,
+            solveTimeMs: performance.now() - startTime,
         };
     }
 
@@ -263,6 +265,7 @@ export function pack(fatherH: number, fatherW: number, items: Item[]): PackResul
             coveredSquares: 0,
             coveragePercent: 0,
             timedOut: false,
+            solveTimeMs: performance.now() - startTime,
         };
     }
 
@@ -274,7 +277,7 @@ export function pack(fatherH: number, fatherW: number, items: Item[]): PackResul
 
     // If greedy filled the grid perfectly, no need to backtrack.
     if (greedyCovered === totalCells || greedyCovered === feasible.reduce((s, it) => s + it.area, 0)) {
-        return buildResult(greedyPlaced, greedyCovered, feasible, unfeasible, totalCells, false);
+        return buildResult(greedyPlaced, greedyCovered, feasible, unfeasible, totalCells, false, performance.now() - startTime);
     }
 
     // ── Phase 2: Backtracking improvement ─────────────────────────────────
@@ -305,6 +308,7 @@ export function pack(fatherH: number, fatherW: number, items: Item[]): PackResul
         unfeasible,
         totalCells,
         state.timedOut,
+        performance.now() - startTime,
     );
 }
 
@@ -317,10 +321,10 @@ function buildResult(
     unfeasible: SolverItem[],
     totalCells: number,
     timedOut: boolean,
+    solveTimeMs: number,
 ): PackResult {
     const placedIds = new Set(placed.map((p) => p.id));
 
-    // Unplaced = items that were feasible but not placed + items that were unfeasible
     const unplacedFeasible = feasible
         .filter((it) => !placedIds.has(it.id))
         .map((it) => ({id: it.id, h: it.h, w: it.w, colorIndex: it.colorIndex}));
@@ -338,6 +342,7 @@ function buildResult(
             ? Math.round((coveredSquares / totalCells) * 10000) / 100
             : 0,
         timedOut,
+        solveTimeMs,
     };
 }
 
