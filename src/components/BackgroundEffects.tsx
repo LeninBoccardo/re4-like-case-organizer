@@ -1,3 +1,4 @@
+/** Decorative floating gradient orbs and CRT-style scanline overlay. */
 export function BackgroundEffects() {
     return (
         <>
@@ -43,4 +44,3 @@ export function BackgroundEffects() {
         </>
     );
 }
-

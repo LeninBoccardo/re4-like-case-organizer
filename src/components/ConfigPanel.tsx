@@ -1,6 +1,7 @@
-import type {Item} from '../types';
-import {Panel, SectionHeader, DimInput} from './ui';
-import {ItemRow} from './ItemRow';
+import type { Item, DimensionField } from '../types';
+import { FONT_MONO, FONT_DISPLAY } from '../constants';
+import { Panel, SectionHeader, DimInput } from './ui';
+import { ItemRow } from './ItemRow';
 
 interface ConfigPanelProps {
     fatherH: number;
@@ -11,44 +12,45 @@ interface ConfigPanelProps {
     solving: boolean;
     onFatherHChange: (v: number) => void;
     onFatherWChange: (v: number) => void;
-    onItemChange: (index: number, field: "h" | "w", value: number) => void;
+    onItemChange: (index: number, field: DimensionField, value: number) => void;
     onItemRemove: (index: number) => void;
     onItemAdd: () => void;
     onSolve: () => void;
 }
 
+/** Left sidebar containing grid configuration, item list, and solve trigger. */
 export function ConfigPanel({
-                                fatherH,
-                                fatherW,
-                                fatherArea,
-                                items,
-                                totalItemArea,
-                                solving,
-                                onFatherHChange,
-                                onFatherWChange,
-                                onItemChange,
-                                onItemRemove,
-                                onItemAdd,
-                                onSolve,
-                            }: ConfigPanelProps) {
+    fatherH,
+    fatherW,
+    fatherArea,
+    items,
+    totalItemArea,
+    solving,
+    onFatherHChange,
+    onFatherWChange,
+    onItemChange,
+    onItemRemove,
+    onItemAdd,
+    onSolve,
+}: ConfigPanelProps) {
     return (
         <div
             className="flex flex-col gap-3 w-full lg:w-72 xl:w-80 shrink-0 overflow-hidden"
-            style={{animation: "fadeUp 0.6s ease 0.1s both"}}
+            style={{ animation: "fadeUp 0.6s ease 0.1s both" }}
         >
             {/* Father rectangle */}
             <Panel>
-                <SectionHeader label="FATHER RECTANGLE" accent="#00f5d4"/>
+                <SectionHeader label="FATHER RECTANGLE" accent="#00f5d4" />
                 <div className="flex gap-3">
-                    <DimInput label="H" value={fatherH} onChange={onFatherHChange}/>
-                    <DimInput label="W" value={fatherW} onChange={onFatherWChange}/>
+                    <DimInput label="H" value={fatherH} onChange={onFatherHChange} />
+                    <DimInput label="W" value={fatherW} onChange={onFatherWChange} />
                 </div>
                 <div
                     className="flex justify-between mt-3 px-3 py-2 rounded-xl"
-                    style={{background: "rgba(0,245,212,0.05)", border: "1px dashed rgba(0,245,212,0.15)"}}
+                    style={{ background: "rgba(0,245,212,0.05)", border: "1px dashed rgba(0,245,212,0.15)" }}
                 >
-                    <span className="text-[11px]" style={{color: "#555"}}>Total squares</span>
-                    <span className="text-[11px] font-bold" style={{color: "#00f5d4"}}>{fatherArea} sq</span>
+                    <span className="text-[11px]" style={{ color: "#555" }}>Total squares</span>
+                    <span className="text-[11px] font-bold" style={{ color: "#00f5d4" }}>{fatherArea} sq</span>
                 </div>
             </Panel>
 
@@ -58,7 +60,7 @@ export function ConfigPanel({
                     label="ITEMS"
                     accent="#f72585"
                     right={
-                        <span className="text-[10px]" style={{color: "#444"}}>
+                        <span className="text-[10px]" style={{ color: "#444" }}>
                             {items.length} items · {totalItemArea} sq
                         </span>
                     }
@@ -82,14 +84,10 @@ export function ConfigPanel({
                         border: "1px dashed rgba(247,37,133,0.3)",
                         background: "transparent",
                         color: "#f72585",
-                        fontFamily: "'Space Mono', monospace",
+                        fontFamily: FONT_MONO,
                     }}
-                    onMouseOver={(e) => {
-                        e.currentTarget.style.background = "rgba(247,37,133,0.08)";
-                    }}
-                    onMouseOut={(e) => {
-                        e.currentTarget.style.background = "transparent";
-                    }}
+                    onMouseOver={(e) => { e.currentTarget.style.background = "rgba(247,37,133,0.08)"; }}
+                    onMouseOut={(e) => { e.currentTarget.style.background = "transparent"; }}
                 >
                     + ADD ITEM
                 </button>
@@ -101,7 +99,7 @@ export function ConfigPanel({
                 disabled={solving}
                 className="w-full py-4 rounded-2xl font-extrabold text-sm tracking-widest flex items-center justify-center gap-3 transition-all duration-200 shrink-0"
                 style={{
-                    fontFamily: "'Syne', sans-serif",
+                    fontFamily: FONT_DISPLAY,
                     background: "rgba(0,245,212,0.12)",
                     border: `2px solid ${solving ? "rgba(0,245,212,0.3)" : "#00f5d4"}`,
                     color: "#00f5d4",
@@ -141,4 +139,3 @@ export function ConfigPanel({
         </div>
     );
 }
-

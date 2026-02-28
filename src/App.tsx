@@ -3,20 +3,28 @@ import './styles/animations.css';
 import { useState, useCallback } from 'react';
 import { uid } from 'uid';
 
-import type { Item, PackResult } from './types';
+import type { Item, DimensionField, PackResult } from './types';
+import { FONT_MONO } from './constants';
 import { pack } from './logic';
 import { BackgroundEffects, Header, Footer, ConfigPanel, ResultsPanel } from './components';
 
+/** Delay (ms) before solving starts — gives the UI time to show the loading state. */
+const SOLVE_DEBOUNCE_MS = 400;
+
+/** Default items pre-loaded into the app for demo purposes. */
+const DEFAULT_ITEMS: Item[] = [
+    { id: uid(), h: 2, w: 3 },
+    { id: uid(), h: 1, w: 3 },
+    { id: uid(), h: 1, w: 5 },
+    { id: uid(), h: 3, w: 2 },
+    { id: uid(), h: 3, w: 1 },
+];
+
+/** Root application component — manages state and composes layout sections. */
 export default function App() {
     const [fatherH, setFatherH] = useState(4);
     const [fatherW, setFatherW] = useState(6);
-    const [items, setItems] = useState<Item[]>([
-        { id: uid(), h: 2, w: 3 },
-        { id: uid(), h: 1, w: 3 },
-        { id: uid(), h: 1, w: 5 },
-        { id: uid(), h: 3, w: 2 },
-        { id: uid(), h: 3, w: 1 },
-    ]);
+    const [items, setItems] = useState<Item[]>(DEFAULT_ITEMS);
     const [result, setResult] = useState<PackResult | null>(null);
     const [solving, setSolving] = useState(false);
     const [animKey, setAnimKey] = useState(0);
@@ -25,18 +33,17 @@ export default function App() {
         setSolving(true);
         setResult(null);
         setTimeout(() => {
-            const r = pack(fatherH, fatherW, items);
-            setResult(r);
+            setResult(pack(fatherH, fatherW, items));
             setAnimKey((k) => k + 1);
             setSolving(false);
-        }, 400);
+        }, SOLVE_DEBOUNCE_MS);
     }, [fatherH, fatherW, items]);
 
     const addItem = useCallback(() => {
         setItems((prev) => [...prev, { id: uid(), h: 1, w: 1 }]);
     }, []);
 
-    const updateItem = useCallback((index: number, field: "h" | "w", value: number) => {
+    const updateItem = useCallback((index: number, field: DimensionField, value: number) => {
         setItems((prev) => prev.map((it, i) => (i === index ? { ...it, [field]: value } : it)));
     }, []);
 
@@ -44,7 +51,7 @@ export default function App() {
         setItems((prev) => prev.filter((_, i) => i !== index));
     }, []);
 
-    const totalItemArea = items.reduce((s, i) => s + i.h * i.w, 0);
+    const totalItemArea = items.reduce((sum, item) => sum + item.h * item.w, 0);
     const fatherArea = fatherH * fatherW;
 
     return (
@@ -58,7 +65,7 @@ export default function App() {
                     radial-gradient(ellipse 50% 60% at 50% 50%, rgba(247,37,133,0.03) 0%, transparent 70%),
                     url("data:image/svg+xml,%3Csvg width='40' height='40' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M0 0h40v40H0z' fill='none'/%3E%3Cpath d='M0 0v40M40 0v40M0 0h40M0 40h40' stroke='%23ffffff07' stroke-width='.5'/%3E%3C/svg%3E")
                 `,
-                fontFamily: "'Space Mono', monospace",
+                fontFamily: FONT_MONO,
             }}
         >
             <BackgroundEffects />
@@ -94,4 +101,3 @@ export default function App() {
         </div>
     );
 }
-

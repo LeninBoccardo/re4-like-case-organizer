@@ -1,17 +1,22 @@
+import { FONT_MONO } from '../../constants';
+
 interface DimInputProps {
     label: string;
     value: number;
     onChange: (v: number) => void;
 }
 
+const LABELS: Record<string, string> = { H: "HEIGHT", W: "WIDTH" };
+
+/** Numeric input for a single grid dimension (height or width). */
 export function DimInput({ label, value, onChange }: DimInputProps) {
     return (
         <div className="flex-1">
             <div
                 className="text-[10px] tracking-widest mb-1.5"
-                style={{ color: "#555", fontFamily: "'Space Mono', monospace" }}
+                style={{ color: "#555", fontFamily: FONT_MONO }}
             >
-                {label === "H" ? "HEIGHT" : "WIDTH"}
+                {LABELS[label] ?? label}
             </div>
             <div className="relative">
                 <input
@@ -26,7 +31,7 @@ export function DimInput({ label, value, onChange }: DimInputProps) {
                         background: "rgba(0,245,212,0.06)",
                         border: "1px solid rgba(0,245,212,0.2)",
                         color: "#00f5d4",
-                        fontFamily: "'Space Mono', monospace",
+                        fontFamily: FONT_MONO,
                     }}
                     onFocus={(e) => {
                         e.target.style.borderColor = "#00f5d4";
@@ -39,7 +44,7 @@ export function DimInput({ label, value, onChange }: DimInputProps) {
                 />
                 <span
                     className="absolute right-2.5 top-2 text-[10px]"
-                    style={{ color: "#00f5d433", fontFamily: "'Space Mono', monospace" }}
+                    style={{ color: "#00f5d433", fontFamily: FONT_MONO }}
                 >
                     {label}
                 </span>
@@ -47,4 +52,3 @@ export function DimInput({ label, value, onChange }: DimInputProps) {
         </div>
     );
 }
-

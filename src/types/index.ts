@@ -1,50 +1,65 @@
+// ─── Domain Models ────────────────────────────────────────────────────────────
+
+/** A user-defined item to be packed into the grid. */
 export interface Item {
-    id: string;
-    h: number;
-    w: number;
+    readonly id: string;
+    readonly h: number;
+    readonly w: number;
 }
 
+/** An item that has been placed on the grid. */
 export interface PlacedItem {
-    id: string;
-    colorIndex: number;
-    row: number;
-    col: number;
-    h: number;
-    w: number;
-    rotated: boolean;
+    readonly id: string;
+    readonly colorIndex: number;
+    readonly row: number;
+    readonly col: number;
+    readonly h: number;
+    readonly w: number;
+    readonly rotated: boolean;
 }
 
+/** An item that could not be placed. */
 export interface UnplacedItem extends Item {
-    colorIndex: number;
+    readonly colorIndex: number;
 }
 
+/** A possible orientation (normal or rotated 90°). */
 export interface Orientation {
-    h: number;
-    w: number;
-    rotated: boolean;
+    readonly h: number;
+    readonly w: number;
+    readonly rotated: boolean;
 }
 
+// ─── Solver Models ────────────────────────────────────────────────────────────
+
+/** The result returned by the packing solver. */
 export interface PackResult {
-    placed: PlacedItem[];
-    unplaced: UnplacedItem[];
-    totalSquares: number;
-    coveredSquares: number;
-    coveragePercent: number;
-    timedOut: boolean;
+    readonly placed: PlacedItem[];
+    readonly unplaced: UnplacedItem[];
+    readonly totalSquares: number;
+    readonly coveredSquares: number;
+    readonly coveragePercent: number;
+    readonly timedOut: boolean;
 }
 
-/** Internal item used by the solver — carries the original array index as colorIndex. */
+/** Internal item used by the solver — carries precomputed data for performance. */
 export interface SolverItem {
-    id: string;
-    colorIndex: number;
-    h: number;
-    w: number;
-    area: number;
-    orientations: Orientation[];
+    readonly id: string;
+    readonly colorIndex: number;
+    readonly h: number;
+    readonly w: number;
+    readonly area: number;
+    readonly orientations: Orientation[];
 }
 
+// ─── UI Models ────────────────────────────────────────────────────────────────
+
+/** Color scheme for a single item in the visualization. */
 export interface ItemColor {
-    bg: string;
-    text: string;
-    glow: string;
+    readonly bg: string;
+    readonly text: string;
+    readonly glow: string;
 }
+
+/** Dimension field identifier used by item editors. */
+export type DimensionField = "h" | "w";

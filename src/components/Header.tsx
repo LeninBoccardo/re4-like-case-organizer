@@ -1,3 +1,6 @@
+import { FONT_DISPLAY } from '../constants';
+
+/** App header with version badge, title, and subtitle. */
 export function Header() {
     return (
         <header
@@ -20,7 +23,7 @@ export function Header() {
             <h1
                 className="leading-none mb-1 tracking-tight"
                 style={{
-                    fontFamily: "'Syne', sans-serif",
+                    fontFamily: FONT_DISPLAY,
                     fontWeight: 800,
                     fontSize: "clamp(26px, 4vw, 44px)",
                     color: "#00f5d4",
@@ -35,4 +38,3 @@ export function Header() {
         </header>
     );
 }
-

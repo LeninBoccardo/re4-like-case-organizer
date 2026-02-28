@@ -5,6 +5,7 @@ interface PanelProps {
     className?: string;
 }
 
+/** Glass-morphism card container used as the primary layout wrapper. */
 export function Panel({ children, className = "" }: PanelProps) {
     return (
         <div
@@ -19,4 +20,3 @@ export function Panel({ children, className = "" }: PanelProps) {
         </div>
     );
 }
-

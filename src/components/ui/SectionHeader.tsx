@@ -1,4 +1,5 @@
 import type { ReactNode } from 'react';
+import { FONT_MONO } from '../../constants';
 
 interface SectionHeaderProps {
     label: string;
@@ -6,6 +7,7 @@ interface SectionHeaderProps {
     right?: ReactNode;
 }
 
+/** Section title bar with a colored accent indicator and optional right-aligned content. */
 export function SectionHeader({ label, accent, right }: SectionHeaderProps) {
     return (
         <div className="flex items-center justify-between mb-4 shrink-0">
@@ -16,7 +18,7 @@ export function SectionHeader({ label, accent, right }: SectionHeaderProps) {
                 />
                 <span
                     className="text-[11px] font-bold tracking-[0.12em]"
-                    style={{ color: accent, fontFamily: "'Space Mono', monospace" }}
+                    style={{ color: accent, fontFamily: FONT_MONO }}
                 >
                     {label}
                 </span>
@@ -25,4 +27,3 @@ export function SectionHeader({ label, accent, right }: SectionHeaderProps) {
         </div>
     );
 }
-

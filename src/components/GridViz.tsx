@@ -1,6 +1,6 @@
-import { useState, useEffect, useRef } from 'react';
-import type { PackResult, PlacedItem } from '../types';
-import { getColor } from '../constants';
+import {useState, useEffect, useRef, useMemo} from 'react';
+import type {PackResult, PlacedItem} from '../types';
+import {FONT_MONO, GRID_CELL_GAP, REVEAL_STAGGER_MS, REVEAL_INITIAL_DELAY_MS, getColor} from '../constants';
 
 interface GridVizProps {
     result: PackResult;
@@ -9,11 +9,26 @@ interface GridVizProps {
     animKey: number;
 }
 
-export function GridViz({ result, fatherH, fatherW, animKey }: GridVizProps) {
+/** Builds a lookup from "row-col" → PlacedItem for O(1) cell queries. */
+function buildCellMap(placed: PlacedItem[]): Record<string, PlacedItem> {
+    const map: Record<string, PlacedItem> = {};
+    for (const p of placed) {
+        for (let r = p.row; r < p.row + p.h; r++) {
+            for (let c = p.col; c < p.col + p.w; c++) {
+                map[`${r}-${c}`] = p;
+            }
+        }
+    }
+    return map;
+}
+
+/** Interactive grid visualization with staggered reveal animation and color-coded legend. */
+export function GridViz({result, fatherH, fatherW, animKey}: GridVizProps) {
     const [revealed, setRevealed] = useState<string[]>([]);
     const containerRef = useRef<HTMLDivElement | null>(null);
     const [cellSize, setCellSize] = useState(48);
 
+    // Responsive cell sizing
     useEffect(() => {
         const ro = new ResizeObserver((entries) => {
             const entry = entries[0];
@@ -28,6 +43,7 @@ export function GridViz({ result, fatherH, fatherW, animKey }: GridVizProps) {
         return () => ro.disconnect();
     }, [fatherW, fatherH]);
 
+    // Staggered reveal animation
     useEffect(() => {
         setRevealed([]);
         if (!result) return;
@@ -35,28 +51,25 @@ export function GridViz({ result, fatherH, fatherW, animKey }: GridVizProps) {
             (a, b) => a.row * 1000 + a.col - (b.row * 1000 + b.col),
         );
         const timers = sorted.map((item, i) =>
-            setTimeout(() => setRevealed((prev) => [...prev, item.id]), i * 180 + 200),
+            setTimeout(
+                () => setRevealed((prev) => [...prev, item.id]),
+                i * REVEAL_STAGGER_MS + REVEAL_INITIAL_DELAY_MS,
+            ),
         );
         return () => timers.forEach(clearTimeout);
     }, [animKey, result]);
 
-    const cellMap: Record<string, PlacedItem> = {};
-    result.placed.forEach((p) => {
-        for (let r = p.row; r < p.row + p.h; r++)
-            for (let c = p.col; c < p.col + p.w; c++)
-                cellMap[`${r}-${c}`] = p;
-    });
-
-    const GAP = 3;
+    const cellMap = useMemo(() => buildCellMap(result.placed), [result.placed]);
 
     return (
         <div ref={containerRef} className="flex flex-col items-center gap-4 w-full h-full">
+            {/* Grid */}
             <div
                 style={{
                     display: "grid",
                     gridTemplateColumns: `repeat(${fatherW}, ${cellSize}px)`,
                     gridTemplateRows: `repeat(${fatherH}, ${cellSize}px)`,
-                    gap: `${GAP}px`,
+                    gap: `${GRID_CELL_GAP}px`,
                     padding: "16px",
                     background: "rgba(0,0,0,0.45)",
                     borderRadius: "16px",
@@ -64,12 +77,13 @@ export function GridViz({ result, fatherH, fatherW, animKey }: GridVizProps) {
                     boxShadow: "0 0 60px rgba(0,0,0,0.5), inset 0 0 40px rgba(0,0,0,0.3)",
                 }}
             >
-                {Array.from({ length: fatherH }, (_, r) =>
-                    Array.from({ length: fatherW }, (_, c) => {
+                {Array.from({length: fatherH}, (_, r) =>
+                    Array.from({length: fatherW}, (_, c) => {
                         const p = cellMap[`${r}-${c}`];
-                        const isRevealed = p != null && revealed.includes(p.id);
-                        const color = p != null ? getColor(p.colorIndex) : null;
-                        const isTopLeft = p != null && p.row === r && p.col === c;
+                        const isEmpty = p === undefined;
+                        const isRevealed = !isEmpty && revealed.includes(p.id);
+                        const color = !isEmpty ? getColor(p.colorIndex) : null;
+                        const isTopLeft = !isEmpty && p.row === r && p.col === c;
 
                         return (
                             <div
@@ -85,7 +99,7 @@ export function GridViz({ result, fatherH, fatherW, animKey }: GridVizProps) {
                                     boxShadow: isRevealed && color ? color.glow : "none",
                                     transition: "all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1)",
                                     transform: isRevealed ? "scale(1)" : "scale(0.82)",
-                                    opacity: isRevealed ? 1 : p == null ? 0.3 : 0.15,
+                                    opacity: isRevealed ? 1 : isEmpty ? 0.3 : 0.15,
                                     display: "flex",
                                     alignItems: "center",
                                     justifyContent: "center",
@@ -98,7 +112,7 @@ export function GridViz({ result, fatherH, fatherW, animKey }: GridVizProps) {
                                     <span
                                         style={{
                                             color: color.text,
-                                            fontFamily: "'Space Mono', monospace",
+                                            fontFamily: FONT_MONO,
                                             fontWeight: 700,
                                             fontSize: Math.max(9, cellSize * 0.28),
                                             zIndex: 2,
@@ -130,16 +144,16 @@ export function GridViz({ result, fatherH, fatherW, animKey }: GridVizProps) {
             <div className="flex flex-wrap justify-center gap-2">
                 {result.placed.map((p) => {
                     const color = getColor(p.colorIndex);
-                    const isVis = revealed.includes(p.id);
+                    const isVisible = revealed.includes(p.id);
                     return (
                         <div
                             key={p.id}
                             className="flex items-center gap-1.5 px-2.5 py-1 rounded-full"
                             style={{
-                                background: isVis ? `${color.bg}22` : "rgba(255,255,255,0.05)",
-                                border: `1px solid ${isVis ? color.bg + "88" : "rgba(255,255,255,0.1)"}`,
+                                background: isVisible ? `${color.bg}22` : "rgba(255,255,255,0.05)",
+                                border: `1px solid ${isVisible ? color.bg + "88" : "rgba(255,255,255,0.1)"}`,
                                 transition: "all 0.4s ease",
-                                opacity: isVis ? 1 : 0.25,
+                                opacity: isVisible ? 1 : 0.25,
                             }}
                         >
                             <div
@@ -149,12 +163,12 @@ export function GridViz({ result, fatherH, fatherW, animKey }: GridVizProps) {
                                     height: 8,
                                     borderRadius: 2,
                                     background: color.bg,
-                                    boxShadow: isVis ? color.glow : "none",
+                                    boxShadow: isVisible ? color.glow : "none",
                                 }}
                             />
                             <span
                                 className="text-[10px] font-bold whitespace-nowrap"
-                                style={{ color: isVis ? color.bg : "#888", fontFamily: "'Space Mono', monospace" }}
+                                style={{color: isVisible ? color.bg : "#888", fontFamily: FONT_MONO}}
                             >
                                 #{p.colorIndex + 1} {p.h}×{p.w}{p.rotated ? " ↻" : ""}
                             </span>
