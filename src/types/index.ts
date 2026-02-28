@@ -33,18 +33,14 @@ export interface PackResult {
     timedOut: boolean;
 }
 
-export interface BestState {
-    covered: number;
-    placed: PlacedItem[];
-    deadline: number;
-    timedOut: boolean;
-}
-
+/** Internal item used by the solver — carries the original array index as colorIndex. */
 export interface SolverItem {
     id: string;
     colorIndex: number;
     h: number;
     w: number;
+    area: number;
+    orientations: Orientation[];
 }
 
 export interface ItemColor {
@@ -52,4 +48,3 @@ export interface ItemColor {
     text: string;
     glow: string;
 }
-
